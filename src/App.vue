@@ -1,107 +1,36 @@
 <template>
-<div class="container">
-
-  <Header @toggle-add-task="toggleAddTask" title="Task Tracker" :showAddTask="showAddTask" />
-<div v-show="showAddTask">
-
-  <AddTask @add-task="addTask"/>
-</div>
-  <Tasks @toggle-reminder="toggleReminder" @delete="deleteTask" :tasks="tasks"/>
-</div>
- 
+  <div class="container">
+    <Header
+      @toggle-add-task="toggleAddTask"
+      title="Task Tracker"
+      :showAddTask="showAddTask"
+    />
+    <router-view :showAddTask="showAddTask"></router-view>
+    <Footer />
+  </div>
 </template>
 
 <script>
 import Header from './components/Header'
-import Tasks from './components/Tasks'
-import AddTask from './components/AddTask'
-
+import Footer from './components/Footer'
 
 export default {
   name: 'App',
   components: {
     Header,
-    Tasks,
-    AddTask,
-   
+    Footer,
   },
-  data(){
+  data() {
     return {
-      tasks:[],
       showAddTask: false,
-     
     }
   },
-  methods:{
-    toggleAddTask(){
+  methods: {
+    toggleAddTask() {
       this.showAddTask = !this.showAddTask
     },
-    async addTask(task){
-      const res = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(task)
-      })
-      const newTask = await res.json()
-
-      this.tasks = [...this.tasks,newTask]
-
-
-    },
-   async deleteTask(id){
-
-   
-      if(confirm('Are you sure you want to delete this task?' )){
-
-         const res = await fetch(`/api/tasks/${id}`,{
-      method:"DELETE"
-      
-    })
-    res.status ===200 ? this.tasks = this.tasks.filter(task => task.id !== id) : alert('Something went wrong')
-       
-      }
-      
-    },
-    async toggleReminder(id){
-      const taskToToggle = await this.fetchTask(id)
-      const updTask = {
-        ...taskToToggle,
-        reminder: !taskToToggle.reminder
-      }
-      const res = await fetch(`/api/tasks/${id}`,{
-        method:"PUT",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updTask)
-      })
-      const data = await res.json()
-      
-      this.tasks = this.tasks.map(task => task.id === id ? data : task)
-    },
-    async fetchTasks(){
-      const res = await fetch("api/tasks");
-      const tasks = await res.json();
-     return tasks;
-
-
-    },
-     async fetchTask(id){
-      const res = await fetch(`api/tasks/${id}`);
-      const tasks = await res.json();
-     return tasks;
-
-
-    },
-    
   },
-  async created(){
-    this.tasks= await this.fetchTasks();
-  },
-  }
-
+}
 </script>
 
 <style>
@@ -153,6 +82,4 @@ body {
   display: block;
   width: 100%;
 }
-
-
 </style>
